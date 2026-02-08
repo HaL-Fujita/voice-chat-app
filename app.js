@@ -363,7 +363,16 @@ class VoiceChatApp {
   speak(text) {
     this.synthesis.cancel();
     
-    const utterance = new SpeechSynthesisUtterance(text);
+    // アスタリスクと絵文字を除去
+    let cleanText = text
+      .replace(/\*+/g, '')  // アスタリスク
+      .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]/gu, '')  // 絵文字
+      .replace(/\s+/g, ' ')  // 余分なスペース
+      .trim();
+    
+    if (!cleanText) return;
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'ja-JP';
     utterance.rate = 1.0;
     utterance.pitch = 1.1;
