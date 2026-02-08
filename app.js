@@ -28,8 +28,17 @@ class VoiceChatApp {
   }
   
   init() {
+    console.log('🎰 Voice Chat App initializing...');
+    
+    // Check HTTPS
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      console.warn('⚠️ HTTPS required for microphone access');
+      this.status.textContent = 'HTTPSが必要です';
+    }
+    
     // Initialize Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      console.log('✅ Speech Recognition supported');
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
       this.recognition.lang = 'ja-JP';
@@ -41,22 +50,42 @@ class VoiceChatApp {
       this.recognition.onend = () => this.onRecordingEnd();
       this.recognition.onerror = (e) => this.onRecordingError(e);
     } else {
+      console.error('❌ Speech Recognition not supported');
       this.status.textContent = '音声認識非対応のブラウザです';
       this.micButton.disabled = true;
     }
     
     // Event Listeners
-    this.micButton.addEventListener('click', () => this.toggleRecording());
+    this.micButton.addEventListener('click', () => {
+      console.log('🎤 Mic button clicked');
+      this.toggleRecording();
+    });
     
     // Start blinking animation
     this.startBlinking();
+    console.log('✅ App initialized');
   }
   
-  toggleRecording() {
+  async toggleRecording() {
     if (this.isRecording) {
+      console.log('⏹️ Stopping recording');
       this.recognition.stop();
     } else {
-      this.recognition.start();
+      // Check microphone permission first
+      try {
+        console.log('🔐 Requesting microphone permission...');
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop()); // Release immediately
+        console.log('✅ Microphone permission granted');
+        
+        console.log('▶️ Starting recording');
+        this.recognition.start();
+      } catch (err) {
+        console.error('❌ Microphone permission denied:', err);
+        this.status.textContent = 'マイクの許可が必要です';
+        this.status.className = 'status-indicator';
+        alert('マイクの使用を許可してください');
+      }
     }
   }
   
@@ -88,8 +117,19 @@ class VoiceChatApp {
   }
   
   onRecordingError(event) {
-    console.error('Speech recognition error:', event.error);
-    this.status.textContent = 'エラー: ' + event.error;
+    console.error('❌ Speech recognition error:', event.error);
+    
+    const errorMessages = {
+      'no-speech': '音声が検出されませんでした',
+      'audio-capture': 'マイクが見つかりません',
+      'not-allowed': 'マイクの許可が必要です',
+      'network': 'ネットワークエラー',
+      'aborted': '中断されました',
+      'service-not-allowed': 'サービスが許可されていません'
+    };
+    
+    this.status.textContent = errorMessages[event.error] || `エラー: ${event.error}`;
+    this.status.className = 'status-indicator';
     this.isRecording = false;
     this.micButton.classList.remove('recording');
   }
@@ -103,6 +143,7 @@ class VoiceChatApp {
   }
   
   async sendToOpenClaw(message) {
+    console.log('📤 Sending to API:', message);
     this.status.textContent = '考え中...';
     this.status.className = 'status-indicator thinking';
     
@@ -111,6 +152,7 @@ class VoiceChatApp {
     
     try {
       // Call local proxy
+      console.log('🌐 Fetching:', CONFIG.API_URL);
       const response = await fetch(CONFIG.API_URL, {
         method: 'POST',
         headers: {
@@ -123,11 +165,16 @@ class VoiceChatApp {
         })
       });
       
+      console.log('📥 Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ API error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
+      console.log('📥 Response data:', data);
       const reply = data.choices?.[0]?.message?.content || 'ごめん、うまく返答できなかった...';
       
       // Add to history
@@ -137,7 +184,7 @@ class VoiceChatApp {
       this.speak(reply);
       
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('❌ API Error:', error);
       const fallbackReply = 'ごめんね、接続エラーが起きたみたい。もう一度試してね！';
       this.addMessage(fallbackReply, 'assistant');
       this.speak(fallbackReply);
