@@ -302,7 +302,12 @@ class VoiceChatApp {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const data = await response.json();
-      const reply = data.choices?.[0]?.message?.content || '...';
+      let reply = data.choices?.[0]?.message?.content || '...';
+      
+      // MEDIA: 行を除去
+      reply = reply.split('\n').filter(line => !line.startsWith('MEDIA:')).join('\n').trim();
+      
+      if (!reply) reply = '...';
       
       this.conversationHistory.push({ role: 'assistant', content: reply });
       this.addMessage(reply, 'assistant');
