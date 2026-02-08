@@ -374,8 +374,8 @@ class VoiceChatApp {
     
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'ja-JP';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.1;
+    utterance.rate = 1.5;   // 1.5倍速
+    utterance.pitch = 1.4;  // 高めのピッチ（かわいい声）
     
     const voices = this.synthesis.getVoices();
     const japaneseVoice = voices.find(v => v.lang.includes('ja'));
