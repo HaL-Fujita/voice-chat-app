@@ -23,6 +23,8 @@ class VoiceChatApp {
     this.mouth = document.getElementById('mouth');
     this.eyeLeft = document.getElementById('eyeLeft');
     this.eyeRight = document.getElementById('eyeRight');
+    this.textInput = document.getElementById('textInput');
+    this.sendButton = document.getElementById('sendButton');
     
     this.init();
   }
@@ -61,9 +63,27 @@ class VoiceChatApp {
       this.toggleRecording();
     });
     
+    // Text input listeners
+    this.sendButton.addEventListener('click', () => this.sendTextMessage());
+    this.textInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.sendTextMessage();
+      }
+    });
+    
     // Start blinking animation
     this.startBlinking();
     console.log('✅ App initialized');
+  }
+  
+  sendTextMessage() {
+    const text = this.textInput.value.trim();
+    if (text) {
+      console.log('📝 Text input:', text);
+      this.addMessage(text, 'user');
+      this.sendToOpenClaw(text);
+      this.textInput.value = '';
+    }
   }
   
   async toggleRecording() {

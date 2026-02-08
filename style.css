@@ -270,6 +270,54 @@ body {
   border-color: #e88c5a;
 }
 
+/* Text Input */
+.text-input-wrapper {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+#textInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #d4a574;
+  border-radius: 24px;
+  font-size: 16px;
+  color: #5a4a3a;
+  background: white;
+}
+
+#textInput:focus {
+  outline: none;
+  border-color: #e88c5a;
+}
+
+#textInput::placeholder {
+  color: #b89a7a;
+}
+
+.send-button {
+  padding: 12px 20px;
+  background: linear-gradient(145deg, #e88c5a 0%, #d47a48 100%);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.send-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(228, 140, 90, 0.4);
+}
+
+.send-button:active {
+  transform: scale(0.95);
+}
+
 /* Scrollbar */
 .message-box::-webkit-scrollbar {
   width: 6px;
