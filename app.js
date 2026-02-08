@@ -310,7 +310,10 @@ class VoiceChatApp {
   onRecordingEnd() {
     this.isRecording = false;
     this.micButton.classList.remove('recording');
-    this.status.textContent = '待機中';
+    // 考え中の場合はステータスを変えない
+    if (!this.status.textContent.includes('考え中')) {
+      this.status.textContent = '待機中';
+    }
   }
   
   onRecordingError(event) {
