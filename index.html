@@ -3,38 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>オールイン番長 - Voice Chat</title>
+  <title>オールイン番長</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <div class="avatar-section">
       <div class="avatar-wrapper">
-        <canvas id="avatarCanvas" width="300" height="300"></canvas>
+        <canvas id="avatarCanvas" width="200" height="200"></canvas>
       </div>
-      <div class="status-indicator" id="status">待機中...</div>
+      <div class="status-indicator" id="status">待機中</div>
     </div>
     
     <div class="chat-section">
       <div class="message-box" id="messageBox">
-        <div class="message assistant">こんにちは！話しかけてね 🎰</div>
+        <div class="message assistant">こんにちは！</div>
       </div>
       
       <div class="input-section">
         <div class="text-input-wrapper">
-          <input type="text" id="textInput" placeholder="メッセージを入力..." />
+          <input type="text" id="textInput" placeholder="メッセージを入力" />
           <button class="send-button" id="sendButton">送信</button>
         </div>
         <button class="mic-button" id="micButton">
           <span class="mic-icon">🎤</span>
-          <span class="mic-text">押して話す</span>
+          <span class="mic-text">話す</span>
         </button>
-        <div class="voice-select">
-          <label>音声:</label>
-          <select id="voiceSelect">
-            <option value="default">デフォルト</option>
-          </select>
-        </div>
       </div>
     </div>
   </div>
