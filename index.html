@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>オールイン番長 - Voice Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <img src="avatar.jpg" alt="オールイン番長" class="avatar" id="avatar">
+        <div class="mouth-overlay" id="mouth"></div>
+        <div class="eye-overlay left" id="eyeLeft"></div>
+        <div class="eye-overlay right" id="eyeRight"></div>
+      </div>
+      <div class="status-indicator" id="status">待機中...</div>
+    </div>
+    
+    <div class="chat-section">
+      <div class="message-box" id="messageBox">
+        <div class="message assistant">こんにちは！話しかけてね 🎰</div>
+      </div>
+      
+      <div class="input-section">
+        <button class="mic-button" id="micButton">
+          <span class="mic-icon">🎤</span>
+          <span class="mic-text">押して話す</span>
+        </button>
+        <div class="voice-select">
+          <label>音声:</label>
+          <select id="voiceSelect">
+            <option value="default">デフォルト</option>
+            <option value="zundamon">ずんだもん（早口）</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="app.js"></script>
+</body>
+</html>
