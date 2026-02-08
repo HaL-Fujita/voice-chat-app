@@ -78,11 +78,13 @@ class VoiceChatApp {
   
   sendTextMessage() {
     const text = this.textInput.value.trim();
+    console.log('📝 Send button clicked, text:', text);
     if (text) {
-      console.log('📝 Text input:', text);
       this.addMessage(text, 'user');
       this.sendToOpenClaw(text);
       this.textInput.value = '';
+    } else {
+      console.log('⚠️ Empty text');
     }
   }
   
@@ -205,9 +207,10 @@ class VoiceChatApp {
       
     } catch (error) {
       console.error('❌ API Error:', error);
-      const fallbackReply = 'ごめんね、接続エラーが起きたみたい。もう一度試してね！';
+      this.status.textContent = 'エラー発生';
+      this.status.className = 'status-indicator';
+      const fallbackReply = `接続エラー: ${error.message}`;
       this.addMessage(fallbackReply, 'assistant');
-      this.speak(fallbackReply);
     }
   }
   

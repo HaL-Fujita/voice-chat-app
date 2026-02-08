@@ -29,11 +29,24 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Health check
+  if (req.url === '/api/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ 
+      status: 'ok', 
+      api: OPENCLAW_API,
+      hasToken: !!OPENCLAW_TOKEN 
+    }));
+    return;
+  }
+
   // API Proxy
   if (req.url === '/api/chat' && req.method === 'POST') {
+    console.log('📥 Received chat request');
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
+      console.log('📤 Proxying to OpenClaw:', OPENCLAW_API);
       proxyToOpenClaw(body, res);
     });
     return;
@@ -61,40 +74,52 @@ const server = http.createServer((req, res) => {
 });
 
 function proxyToOpenClaw(body, res) {
-  const url = new URL(OPENCLAW_API + '/v1/chat/completions');
-  
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  if (OPENCLAW_TOKEN) {
-    headers['Authorization'] = `Bearer ${OPENCLAW_TOKEN}`;
-  }
+  try {
+    const url = new URL(OPENCLAW_API + '/v1/chat/completions');
+    console.log('🌐 Target URL:', url.href);
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body)
+    };
+    if (OPENCLAW_TOKEN) {
+      headers['Authorization'] = `Bearer ${OPENCLAW_TOKEN}`;
+    }
 
-  const options = {
-    hostname: url.hostname,
-    port: url.port || 443,
-    path: url.pathname,
-    method: 'POST',
-    headers: headers
-  };
+    const options = {
+      hostname: url.hostname,
+      port: url.port || 443,
+      path: url.pathname,
+      method: 'POST',
+      headers: headers
+    };
 
-  const proxyReq = https.request(options, (proxyRes) => {
-    let data = '';
-    proxyRes.on('data', chunk => data += chunk);
-    proxyRes.on('end', () => {
-      res.writeHead(proxyRes.statusCode, { 'Content-Type': 'application/json' });
-      res.end(data);
+    console.log('📡 Request options:', { hostname: options.hostname, path: options.path });
+
+    const proxyReq = https.request(options, (proxyRes) => {
+      console.log('📥 Proxy response status:', proxyRes.statusCode);
+      let data = '';
+      proxyRes.on('data', chunk => data += chunk);
+      proxyRes.on('end', () => {
+        console.log('📥 Proxy response length:', data.length);
+        res.writeHead(proxyRes.statusCode, { 'Content-Type': 'application/json' });
+        res.end(data);
+      });
     });
-  });
 
-  proxyReq.on('error', (e) => {
-    console.error('Proxy error:', e);
+    proxyReq.on('error', (e) => {
+      console.error('❌ Proxy error:', e);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Proxy error', message: e.message }));
+    });
+
+    proxyReq.write(body);
+    proxyReq.end();
+  } catch (e) {
+    console.error('❌ Proxy setup error:', e);
     res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Proxy error', message: e.message }));
-  });
-
-  proxyReq.write(body);
-  proxyReq.end();
+    res.end(JSON.stringify({ error: 'Setup error', message: e.message }));
+  }
 }
 
 server.listen(PORT, () => {
