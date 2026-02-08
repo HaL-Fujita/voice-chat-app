@@ -4,8 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const OPENCLAW_API = process.env.OPENCLAW_API || 'https://clawd-sensei-v2.fly.dev';
-const OPENCLAW_TOKEN = process.env.OPENCLAW_TOKEN || '';
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -34,20 +33,18 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ 
       status: 'ok', 
-      api: OPENCLAW_API,
-      hasToken: !!OPENCLAW_TOKEN 
+      hasKey: !!ANTHROPIC_API_KEY 
     }));
     return;
   }
 
-  // API Proxy
+  // API Proxy to Anthropic
   if (req.url === '/api/chat' && req.method === 'POST') {
     console.log('📥 Received chat request');
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
-      console.log('📤 Proxying to OpenClaw:', OPENCLAW_API);
-      proxyToOpenClaw(body, res);
+      proxyToAnthropic(body, res);
     });
     return;
   }
@@ -73,37 +70,69 @@ const server = http.createServer((req, res) => {
   });
 });
 
-function proxyToOpenClaw(body, res) {
+function proxyToAnthropic(body, res) {
   try {
-    const url = new URL(OPENCLAW_API + '/v1/chat/completions');
-    console.log('🌐 Target URL:', url.href);
+    // Parse incoming request (OpenAI format)
+    const reqData = JSON.parse(body);
     
-    const headers = {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body)
+    // Convert to Anthropic format
+    const anthropicBody = {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: 'あなたは「オールイン番長」です。親しみやすく、時にユーモラスに会話してください。',
+      messages: reqData.messages.map(m => ({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: m.content
+      }))
     };
-    if (OPENCLAW_TOKEN) {
-      headers['Authorization'] = `Bearer ${OPENCLAW_TOKEN}`;
-    }
+
+    const postData = JSON.stringify(anthropicBody);
+    console.log('📤 Sending to Anthropic');
 
     const options = {
-      hostname: url.hostname,
-      port: url.port || 443,
-      path: url.pathname,
+      hostname: 'api.anthropic.com',
+      port: 443,
+      path: '/v1/messages',
       method: 'POST',
-      headers: headers
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Length': Buffer.byteLength(postData)
+      }
     };
 
-    console.log('📡 Request options:', { hostname: options.hostname, path: options.path });
-
     const proxyReq = https.request(options, (proxyRes) => {
-      console.log('📥 Proxy response status:', proxyRes.statusCode);
+      console.log('📥 Anthropic response status:', proxyRes.statusCode);
       let data = '';
       proxyRes.on('data', chunk => data += chunk);
       proxyRes.on('end', () => {
-        console.log('📥 Proxy response length:', data.length);
-        res.writeHead(proxyRes.statusCode, { 'Content-Type': 'application/json' });
-        res.end(data);
+        try {
+          // Convert Anthropic response to OpenAI format
+          const anthropicRes = JSON.parse(data);
+          
+          if (anthropicRes.error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: anthropicRes.error }));
+            return;
+          }
+
+          const openaiFormat = {
+            choices: [{
+              message: {
+                role: 'assistant',
+                content: anthropicRes.content?.[0]?.text || ''
+              }
+            }]
+          };
+          
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(openaiFormat));
+        } catch (e) {
+          console.error('❌ Parse error:', e);
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Parse error', raw: data }));
+        }
       });
     });
 
@@ -113,10 +142,10 @@ function proxyToOpenClaw(body, res) {
       res.end(JSON.stringify({ error: 'Proxy error', message: e.message }));
     });
 
-    proxyReq.write(body);
+    proxyReq.write(postData);
     proxyReq.end();
   } catch (e) {
-    console.error('❌ Proxy setup error:', e);
+    console.error('❌ Setup error:', e);
     res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Setup error', message: e.message }));
   }
@@ -124,5 +153,5 @@ function proxyToOpenClaw(body, res) {
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`OpenClaw API: ${OPENCLAW_API}`);
+  console.log(`Anthropic API: ${ANTHROPIC_API_KEY ? 'configured' : 'NOT SET'}`);
 });
