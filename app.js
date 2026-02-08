@@ -268,6 +268,7 @@ class VoiceChatApp {
     const text = this.textInput.value.trim();
     if (text) {
       this.addMessage(text, 'user');
+      this.status.textContent = '💭 考え中...';
       this.sendToAPI(text);
       this.textInput.value = '';
     }
@@ -301,6 +302,7 @@ class VoiceChatApp {
     }
     if (event.results[event.results.length - 1].isFinal) {
       this.addMessage(transcript, 'user');
+      this.status.textContent = '💭 考え中...';
       this.sendToAPI(transcript);
     }
   }
@@ -326,7 +328,6 @@ class VoiceChatApp {
   }
   
   async sendToAPI(message) {
-    this.status.textContent = '💭 考え中...';
     this.conversationHistory.push({ role: 'user', content: message });
     
     try {
