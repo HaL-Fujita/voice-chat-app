@@ -1,10 +1,8 @@
 // Voice Chat App for オールイン番長
 // Configuration
 const CONFIG = {
-  // Change this to your OpenClaw Gateway URL
-  API_URL: 'https://clawd-sensei-v2.fly.dev/v1/chat/completions',
-  // Optional: Add your gateway token here or leave empty
-  API_TOKEN: '',
+  // Use local proxy (server.js handles the API call)
+  API_URL: '/api/chat',
   MODEL: 'anthropic/claude-sonnet-4-20250514'
 };
 
@@ -112,18 +110,12 @@ class VoiceChatApp {
     this.conversationHistory.push({ role: 'user', content: message });
     
     try {
-      // Prepare headers
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-      if (CONFIG.API_TOKEN) {
-        headers['Authorization'] = `Bearer ${CONFIG.API_TOKEN}`;
-      }
-      
-      // OpenClaw Gateway API
+      // Call local proxy
       const response = await fetch(CONFIG.API_URL, {
         method: 'POST',
-        headers: headers,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           model: CONFIG.MODEL,
           messages: this.conversationHistory.slice(-10), // Keep last 10 messages
