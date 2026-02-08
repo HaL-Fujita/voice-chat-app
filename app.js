@@ -364,10 +364,11 @@ class VoiceChatApp {
   speak(text) {
     this.synthesis.cancel();
     
-    // アスタリスクと絵文字を除去
+    // アスタリスク、絵文字、URLを除去
     let cleanText = text
       .replace(/\*+/g, '')  // アスタリスク
-      .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]/gu, '')  // 絵文字
+      .replace(/https?:\/\/[^\s]+/g, '')  // URL
+      .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2300}-\u{23FF}]|[\u{2B50}]|[\u{1FA00}-\u{1FAFF}]/gu, '')  // 絵文字（拡張）
       .replace(/\s+/g, ' ')  // 余分なスペース
       .trim();
     
