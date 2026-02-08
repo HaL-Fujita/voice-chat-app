@@ -1,0 +1,12 @@
+{
+  "name": "voice-chat-app",
+  "version": "1.0.0",
+  "description": "オールイン番長 Voice Chat - AI音声会話アプリ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
