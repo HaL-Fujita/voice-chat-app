@@ -322,12 +322,18 @@ class VoiceChatApp {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Wait for voices to load
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = () => {
-      new VoiceChatApp();
-    };
-  } else {
-    new VoiceChatApp();
+  console.log('🎰 DOM loaded, initializing app...');
+  
+  // Initialize immediately, don't wait for voices
+  const app = new VoiceChatApp();
+  
+  // Also try to load voices in background
+  if (typeof speechSynthesis !== 'undefined') {
+    speechSynthesis.getVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = () => {
+        console.log('🔊 Voices loaded');
+      };
+    }
   }
 });
