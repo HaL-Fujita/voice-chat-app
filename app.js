@@ -25,20 +25,41 @@ class AvatarAnimator {
     const w = this.canvas.width;
     const h = this.canvas.height;
     const cx = w / 2;
-    const cy = h / 2;
+    const cy = h / 2 + 10;
     
     ctx.clearRect(0, 0, w, h);
     
-    // 顔（円）
-    ctx.fillStyle = '#ffecd2';
+    // 髪の毛（後ろ）
+    ctx.fillStyle = '#4a3728';
     ctx.beginPath();
-    ctx.arc(cx, cy, 80, 0, Math.PI * 2);
+    ctx.ellipse(cx, cy - 20, 85, 90, 0, Math.PI, Math.PI * 2);
     ctx.fill();
     
-    // 顔の輪郭
-    ctx.strokeStyle = '#d4a574';
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    // 顔（円）
+    ctx.fillStyle = '#ffe4c9';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 70, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 髪の毛（前髪）
+    ctx.fillStyle = '#4a3728';
+    ctx.beginPath();
+    ctx.moveTo(cx - 70, cy - 30);
+    ctx.quadraticCurveTo(cx - 50, cy - 70, cx - 20, cy - 55);
+    ctx.quadraticCurveTo(cx, cy - 75, cx + 20, cy - 55);
+    ctx.quadraticCurveTo(cx + 50, cy - 70, cx + 70, cy - 30);
+    ctx.quadraticCurveTo(cx + 75, cy - 60, cx + 60, cy - 85);
+    ctx.quadraticCurveTo(cx, cy - 100, cx - 60, cy - 85);
+    ctx.quadraticCurveTo(cx - 75, cy - 60, cx - 70, cy - 30);
+    ctx.fill();
+    
+    // サイドの髪
+    ctx.beginPath();
+    ctx.ellipse(cx - 75, cy + 10, 15, 50, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx + 75, cy + 10, 15, 50, -0.2, 0, Math.PI * 2);
+    ctx.fill();
     
     // まばたき処理
     this.blinkTimer++;
@@ -61,104 +82,124 @@ class AvatarAnimator {
       }
     }
     
-    // 左目
+    // 左目（大きくかわいく）
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.ellipse(cx - 25, cy - 10, 15, 20 * eyeOpen, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx - 22, cy - 5, 18, 22 * eyeOpen, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.stroke();
     
     // 左目の瞳
     if (eyeOpen > 0.3) {
-      ctx.fillStyle = '#2c1810';
+      // 瞳（大きめ）
+      ctx.fillStyle = '#3d2314';
       ctx.beginPath();
-      ctx.arc(cx - 25, cy - 8, 8, 0, Math.PI * 2);
+      ctx.arc(cx - 22, cy - 3, 12, 0, Math.PI * 2);
       ctx.fill();
       
-      // ハイライト
+      // 瞳の中心
+      ctx.fillStyle = '#1a0f0a';
+      ctx.beginPath();
+      ctx.arc(cx - 22, cy - 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // ハイライト（大）
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(cx - 22, cy - 12, 3, 0, Math.PI * 2);
+      ctx.arc(cx - 17, cy - 9, 5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // ハイライト（小）
+      ctx.beginPath();
+      ctx.arc(cx - 26, cy + 2, 2, 0, Math.PI * 2);
       ctx.fill();
     }
     
-    // 右目
+    // 右目（大きくかわいく）
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.ellipse(cx + 25, cy - 10, 15, 20 * eyeOpen, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx + 22, cy - 5, 18, 22 * eyeOpen, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.stroke();
     
     // 右目の瞳
     if (eyeOpen > 0.3) {
-      ctx.fillStyle = '#2c1810';
+      ctx.fillStyle = '#3d2314';
       ctx.beginPath();
-      ctx.arc(cx + 25, cy - 8, 8, 0, Math.PI * 2);
+      ctx.arc(cx + 22, cy - 3, 12, 0, Math.PI * 2);
       ctx.fill();
       
-      // ハイライト
+      ctx.fillStyle = '#1a0f0a';
+      ctx.beginPath();
+      ctx.arc(cx + 22, cy - 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(cx + 28, cy - 12, 3, 0, Math.PI * 2);
+      ctx.arc(cx + 27, cy - 9, 5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(cx + 18, cy + 2, 2, 0, Math.PI * 2);
       ctx.fill();
     }
     
-    // 眉毛
-    ctx.strokeStyle = '#5c4033';
-    ctx.lineWidth = 3;
+    // 眉毛（やわらかく）
+    ctx.strokeStyle = '#4a3728';
+    ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     
     ctx.beginPath();
-    ctx.moveTo(cx - 40, cy - 35);
-    ctx.quadraticCurveTo(cx - 25, cy - 42, cx - 10, cy - 35);
+    ctx.moveTo(cx - 38, cy - 30);
+    ctx.quadraticCurveTo(cx - 22, cy - 35, cx - 8, cy - 30);
     ctx.stroke();
     
     ctx.beginPath();
-    ctx.moveTo(cx + 10, cy - 35);
-    ctx.quadraticCurveTo(cx + 25, cy - 42, cx + 40, cy - 35);
+    ctx.moveTo(cx + 8, cy - 30);
+    ctx.quadraticCurveTo(cx + 22, cy - 35, cx + 38, cy - 30);
     ctx.stroke();
     
-    // 鼻
-    ctx.strokeStyle = '#d4a574';
-    ctx.lineWidth = 2;
+    // 鼻（小さく）
+    ctx.fillStyle = '#f0c9b0';
     ctx.beginPath();
-    ctx.moveTo(cx, cy + 5);
-    ctx.lineTo(cx - 5, cy + 15);
-    ctx.lineTo(cx + 5, cy + 15);
-    ctx.stroke();
+    ctx.arc(cx, cy + 12, 4, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // ほっぺ（ピンク）
+    ctx.fillStyle = 'rgba(255, 130, 130, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(cx - 45, cy + 15, 12, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx + 45, cy + 15, 12, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
     
     // 口
-    let mouthHeight = 5;
+    let mouthOpen = 0;
     if (this.isTalking) {
-      this.mouthPhase += 0.25;
-      mouthHeight = 5 + Math.abs(Math.sin(this.mouthPhase)) * 15;
+      this.mouthPhase += 0.3;
+      mouthOpen = Math.abs(Math.sin(this.mouthPhase));
     }
     
-    ctx.fillStyle = '#c44';
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + 40, 20, mouthHeight, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // 口の中（話し中）
-    if (mouthHeight > 8) {
+    if (mouthOpen > 0.2) {
+      // 開いた口
+      ctx.fillStyle = '#d35';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 32, 12, 6 + mouthOpen * 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // 口の中
       ctx.fillStyle = '#611';
       ctx.beginPath();
-      ctx.ellipse(cx, cy + 42, 12, mouthHeight - 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy + 34, 8, mouthOpen * 8, 0, 0, Math.PI * 2);
       ctx.fill();
+    } else {
+      // にっこり口（∪型）
+      ctx.strokeStyle = '#d35';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(cx, cy + 25, 15, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.stroke();
     }
-    
-    // ほっぺ
-    ctx.fillStyle = 'rgba(255, 150, 150, 0.3)';
-    ctx.beginPath();
-    ctx.ellipse(cx - 55, cy + 15, 15, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(cx + 55, cy + 15, 15, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
     
     requestAnimationFrame(() => this.animate());
   }
